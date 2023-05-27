@@ -13,6 +13,10 @@ module.exports = {
         AlterTimeHeals: {
             h: 3,
             w: 1
+        },
+        GiantSlayerValue: {
+            h: 1,
+            w: 2
         }
     },
 }

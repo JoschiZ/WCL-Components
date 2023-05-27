@@ -6,6 +6,12 @@
 This component returns a table showing how much health was gained and lost in each use of Alter Time.
 It accounts for manually canceled auras.
 
+## GiantSlayerValue
+[Import String](dist/GiantSlayerValue.component.lzstring.txt)
+
+This component calculates how much of the Devastation Evoker Mastery got applied on average.
+By comparing the Dragonrage value with the baseline, one can gauge the in vivo value of tyranny.
+
 
 ## FireBreathAlyzer
 WIP
