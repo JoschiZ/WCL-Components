@@ -29,7 +29,7 @@ jobs:
       run: |
         git config user.name "GitHub Actions Bot"
         git config user.email "github-actions-bot@example.com"
-        git remote set-url origin https://github.com/JoschiGrey/WCL-Components.git
+        git remote set-url origin https://JoschiGrey:${{ secrets.GH_PAT }}@github.com/JoschiGrey/WCL-Components.git
         git fetch origin
         git checkout -b build_output
         commit_message=$(git log --format=%s -n 1 | sed 's/^commit //')
