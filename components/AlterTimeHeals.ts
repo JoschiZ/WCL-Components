@@ -12,10 +12,12 @@ type Row = {
 }
 
 const COMPONENT_NAME = "Alter Time Healing"
-
 const DEBUG = false
-
 const db = new Debugger()
+const ALTER_TIME_BUFF_ID = 342246
+const ALTER_TIME_ID = 342247
+const ALTER_TIME_ICON = "<AbilityIcon id={ALTER_TIME_ID} icon=\"spell_mage_altertime.jpg\">Alter Time</AbilityIcon>"
+
 
 export default getComponent = () => {
     if (reportGroup.fights.length !== 1) {
@@ -39,7 +41,21 @@ export default getComponent = () => {
 
     const heals = getAlterTimeHeals(fight, actor)
 
-    const table: RpgLogs.TableComponent = {
+    const noAlterTimeComponent: RpgLogs.EnhancedMarkdownComponent = {
+        component: "EnhancedMarkdown",
+        props: {
+            content: `
+# ${COMPONENT_NAME}
+<Mage>${actor.name}</Mage> did not use ${ALTER_TIME_ICON} or all usages got canceled.
+`
+        }
+    }
+
+    if(heals.length === 0){
+        return noAlterTimeComponent
+    }
+
+    const alterTimeHealingTable: RpgLogs.TableComponent = {
         component: "Table",
         props: {
             columns: {
@@ -65,11 +81,10 @@ export default getComponent = () => {
         return db.messages
     }
 
-    return table
+    return alterTimeHealingTable
 }
 
-const ALTER_TIME_BUFF_ID = 342246
-const ALTER_TIME_ID = 342247
+
 
 function getAlterTimeHeals(fight: RpgLogs.Fight, actor: RpgLogs.Actor): Row[] {
     const gained = eventsByCategoryAndDisposition(fight, "aurasGained", "friendly")
