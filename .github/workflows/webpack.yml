@@ -11,6 +11,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -25,16 +28,8 @@ jobs:
         npm install
         npx webpack --no-watch
 
-    - name: Generate commit message and hash
-      run: |
-        git config user.name "GitHub Actions Bot"
-        git config user.email "github-actions-bot@example.com"
-        git remote set-url origin https://JoschiGrey:${{ secrets.GH_PAT }}@github.com/JoschiGrey/WCL-Components.git
-        git fetch origin
-        git checkout -b build_output
-        commit_message=$(git log --format=%s -n 1 | sed 's/^commit //')
-        commit_hash=$(git log --pretty=format:%H -n 1)
-        git add dist
-        git commit -m "$commit_message"
-        git push origin build_output
+    - name: Commit to repo
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Automated Webpack Build
 
