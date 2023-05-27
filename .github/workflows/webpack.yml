@@ -27,9 +27,12 @@ jobs:
 
     - name: Generate commit message and hash
       run: |
-         commit_message=$(git log --format=%s -n 1 | sed 's/^commit //')
-         commit_hash=$(git log --pretty=format:%H -n 1)
-         git add dist
-         git commit -m "$commit_message"
-         git push
-  
+        git config user.name "GitHub Actions Bot"
+        git config user.email "github-actions-bot@example.com"
+        git remote add origin ${{ secrets.GH_PAT }}
+        commit_message=$(git log --format=%s -n 1 | sed 's/^commit //')
+        commit_hash=$(git log --pretty=format:%H -n 1)
+        git add dist
+        git commit -m "$commit_message"
+        git push
+
