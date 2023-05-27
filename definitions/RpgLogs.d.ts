@@ -429,7 +429,7 @@ export namespace RpgLogs {
          * @param actor - The player to fetch the spec for.
          * @returns - The spec of the actor
          */
-        specForPlayer(actor: Actor): number;
+        specForPlayer(actor: Actor): string;
 
         /**
          * The instance count for a given actor.
