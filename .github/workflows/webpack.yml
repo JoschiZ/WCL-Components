@@ -29,7 +29,7 @@ jobs:
       run: |
         git config user.name "GitHub Actions Bot"
         git config user.email "github-actions-bot@example.com"
-        git remote add origin ${{ secrets.GH_PAT }}
+        git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/JoschiGrey/WCL-Components.git
         commit_message=$(git log --format=%s -n 1 | sed 's/^commit //')
         commit_hash=$(git log --pretty=format:%H -n 1)
         git add dist
