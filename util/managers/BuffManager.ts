@@ -82,6 +82,10 @@ export default class BuffManager {
       return this.actors[id]
     }
   }
+
+  getSelfBuff(idInReport: number, auraId: number){
+    return this.actors[idInReport].targets[idInReport].buffs[auraId]
+  }
 }
 
 class SourceActor {
@@ -198,23 +202,31 @@ class Aura {
   }
 }
 
-class IsInTimeSpan {
+export class IsInTimeSpan {
   readonly timeSpans: number[][];
+  private currentTimeSpan
 
   constructor(ability: Aura) {
     this.timeSpans = ability.sortedTimeSpans;
+    this.currentTimeSpan = this.timeSpans.shift()
   }
 
+
+
   isInTimeSpan(time: number): boolean {
-    const timeSpan = this.timeSpans.pop();
-    if (!timeSpan) {
+
+    if (!this.currentTimeSpan) {
       return false;
     }
 
-    const start = timeSpan[0];
-    const end = timeSpan[1];
+    let start = this.currentTimeSpan[0];
+    start ??= 0
+
+    let end = this.currentTimeSpan[1];
+    end ??= Infinity
 
     if (time > end) {
+      this.currentTimeSpan = this.timeSpans.shift()
       return this.isInTimeSpan(time);
     }
 
