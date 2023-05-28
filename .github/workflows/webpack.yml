@@ -9,6 +9,7 @@ on:
       - "*.yml"
       - "markdown/**/*.md"
       - "!dist/**/*"
+  workflow_dispatch:
 
 
 jobs:
