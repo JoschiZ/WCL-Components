@@ -58,6 +58,11 @@ module.exports = {
                 use: ['ts-loader'],
                 exclude: /node_modules/,
             },
+            {
+                use: ["raw-loader"],
+                test: /\.md$/,
+                exclude: /node_module/
+            }
         ],
     },
     resolve: {
