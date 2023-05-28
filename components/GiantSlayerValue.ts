@@ -4,7 +4,7 @@ import {eventsByCategoryAndDisposition} from "../util/wrappers/getEventsByTypeAn
 import {RpgLogs} from "../definitions/RpgLogs";
 import Debugger from "../util/debugging/Debugger";
 
-const COMPONENT_NAME = "Master: Giant Slayer Value"
+const COMPONENT_NAME = "Mastery: Giant Slayer Value"
 const DRAGON_RAGE_BUFF_ID = 375087
 const TYRANNY_ID = 376888
 const HAS_TYRANNY: Record<string, boolean> = {}
@@ -28,6 +28,7 @@ const TYRANNY_ICON = "<AbilityIcon id={376888} icon=\"ability_evoker_dragonrage2
 const GIANT_SLAYER_ICON = "<AbilityIcon id={362980} icon=\"ability_evoker_masterygiantkiller.jpg\">Mastery: Giant Slayer</AbilityIcon>"
 const DEBUG = false
 const db = new Debugger()
+db.addMessage("HasTyranny", HAS_TYRANNY)
 
 export default getComponent = () => {
     if (reportGroup.fights.length !== 1) {
@@ -61,15 +62,35 @@ export default getComponent = () => {
 
     let averageMasteryValueWithTyranny = 0
     let averageMasteryValue = 0
+    let damageGainByTyranny = 0
+
+
+
+    const masteryPercent = ((fight.combatantInfoEvents[0].stats.mastery / MASTER_POINTS_PER_PERCENT) + BASE_MASTERY_PERCENT) / 100
+    db.addMessage("masteryPercent", masteryPercent)
+
 
     for (const damageSummary of damageSummaries) {
         if (hasTyranny(fight.combatantInfoEvents[0]) && (damageSummary.hasDragonrage || damageSummary.isDeepBreath)) {
             averageMasteryValueWithTyranny += 1
+            let baseDamage = (damageSummary.damageDone / (1 +  masteryPercent))
+            let damageWithoutTyranny = baseDamage * (masteryPercent * damageSummary.healthPercent + 1)
+            let tyrannyDamageGain = damageSummary.damageDone - damageWithoutTyranny
+            damageGainByTyranny += tyrannyDamageGain
+
         } else {
             averageMasteryValueWithTyranny += damageSummary.healthPercent
         }
         averageMasteryValue += damageSummary.healthPercent
+
     }
+
+    db.addMessage("hasTyranny", hasTyranny(fight.combatantInfoEvents[0]))
+    db.addMessage("damageGainByTyranny", damageGainByTyranny)
+
+    const dpsGain = damageGainByTyranny / ((fight.endTime - fight.startTime) / 1000)
+    db.addMessage("dpsGain", dpsGain)
+
 
     averageMasteryValue /= damageSummaries.length
     const averageMasteryValueDisplay = (averageMasteryValue * 100).toFixed(2)
@@ -77,12 +98,12 @@ export default getComponent = () => {
 
     averageMasteryValueWithTyranny /= damageSummaries.length
     const averageMasteryValueWithTyrannyDisplay = (averageMasteryValueWithTyranny * 100).toFixed(2)
-    db.addMessage("averageMasteryValueWithTyranny", averageMasteryValue)
+    db.addMessage("averageMasteryValueWithTyranny", averageMasteryValueWithTyranny)
 
-    const masteryPercent = (fight.combatantInfoEvents[0].stats.mastery / MASTER_POINTS_PER_PERCENT) + BASE_MASTERY_PERCENT
-    const masteryPercentDisplay = masteryPercent.toFixed(2)
-    const damageGain = (averageMasteryValue * masteryPercent).toFixed(2)
-    const damageGainWithTyranny = (averageMasteryValueWithTyranny * masteryPercent).toFixed(2)
+
+    const masteryPercentDisplay = (masteryPercent * 100).toFixed(2)
+    const damagePercentGain = (averageMasteryValue * masteryPercent * 100).toFixed(2)
+    const damagePercentGainWithTyranny = (averageMasteryValueWithTyranny * masteryPercent * 100).toFixed(2)
 
     const markdownComponent: RpgLogs.EnhancedMarkdownComponent = {
         component: "EnhancedMarkdown",
@@ -91,7 +112,9 @@ export default getComponent = () => {
 # <u>${COMPONENT_NAME} for <Evoker>${actor.name}</Evoker></u>
 On average ${averageMasteryValueWithTyrannyDisplay}% (${averageMasteryValueDisplay}% without ${TYRANNY_ICON}) of ${GIANT_SLAYER_ICON} got applied.
 
-With your Mastery of ${masteryPercentDisplay}% this was an overall DPS gain of ${damageGainWithTyranny}% (${damageGain}%), assuming your mastery did not change during the Encounter
+With your Mastery of ${fight.combatantInfoEvents[0].stats.mastery.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}(${masteryPercentDisplay}%) ${TYRANNY_ICON} gained you ${dpsGain.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} DPS, assuming your mastery did not change during the Encounter.
+
+Overall ${GIANT_SLAYER_ICON} increased your damage by roughly ${damagePercentGainWithTyranny}% (${damagePercentGain}%).
 `
         }
     }
@@ -144,10 +167,10 @@ function getDamageSummaries(damageEvents: ReadonlyArray<RpgLogs.DamageEvent>, co
         if (!damageEvent.source || !damageEvent.ability || !damageEvent.targetResources) {
             continue
         }
-        if (damageEvent.source.idInReport !== combatantInfo.source.idInReport){
+        if (damageEvent.source.idInReport !== combatantInfo.source.idInReport) {
             continue
         }
-        if (!damageEvent.amount){
+        if (!damageEvent.amount) {
             continue
         }
         if (!SPELL_WHITELIST.has(damageEvent.ability.id)) {
@@ -160,7 +183,7 @@ function getDamageSummaries(damageEvents: ReadonlyArray<RpgLogs.DamageEvent>, co
         const damageDone = damageEvent.amount
         const hasDragonrage = timeSpanManager.isInTimeSpan(damageEvent.timestamp)
 
-        damageSummaries.push({healthPercent, damageDone, hasDragonrage, isDeepBreath, timestamp:damageEvent.timestamp})
+        damageSummaries.push({healthPercent, damageDone, hasDragonrage, isDeepBreath, timestamp: damageEvent.timestamp})
     }
 
     return damageSummaries
