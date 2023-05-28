@@ -13,7 +13,7 @@ type Row = {
 
 const COMPONENT_NAME = "Alter Time Healing"
 const DEBUG = false
-const db = new Debugger()
+const db = new Debugger(DEBUG)
 const ALTER_TIME_BUFF_ID = 342246
 const ALTER_TIME_ID = 342247
 const ALTER_TIME_ICON = "<AbilityIcon id={ALTER_TIME_ID} icon=\"spell_mage_altertime.jpg\">Alter Time</AbilityIcon>"

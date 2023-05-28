@@ -27,7 +27,7 @@ const MASTER_POINTS_PER_PERCENT = 72;
 const TYRANNY_ICON = "<AbilityIcon id={376888} icon=\"ability_evoker_dragonrage2.jpg\">Tyranny</AbilityIcon>"
 const GIANT_SLAYER_ICON = "<AbilityIcon id={362980} icon=\"ability_evoker_masterygiantkiller.jpg\">Mastery: Giant Slayer</AbilityIcon>"
 const DEBUG = false
-const db = new Debugger()
+const db = new Debugger(DEBUG)
 db.addMessage("HasTyranny", HAS_TYRANNY)
 
 export default getComponent = () => {
