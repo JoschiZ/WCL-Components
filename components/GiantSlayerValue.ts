@@ -1,8 +1,9 @@
 import throwError from "../util/returnHelper/throwError";
-import BuffManager, {IsInTimeSpan} from "../util/managers/BuffManager";
+import BuffManager from "../util/managers/BuffManager";
 import {eventsByCategoryAndDisposition} from "../util/wrappers/getEventsByTypeAndDisposition";
 import {RpgLogs} from "../definitions/RpgLogs";
 import Debugger from "../util/debugging/Debugger";
+import {IsInTimeSpan} from "../util/managers/IsInTimeSpan";
 
 const COMPONENT_NAME = "Mastery: Giant Slayer Value"
 const DRAGON_RAGE_BUFF_ID = 375087
