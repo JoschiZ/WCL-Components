@@ -4,12 +4,12 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "*.ts"
-      - "*.js"
-      - "*.yml"
+      - "**.ts"
+      - "**.js"
+      - "**.yml"
       - "markdown/**/*.md"
       - "!dist/**/*"
-
+  workflow_dispatch:
 
 jobs:
   build:
