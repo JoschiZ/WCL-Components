@@ -27,6 +27,8 @@ const BASE_MASTERY_PERCENT = 22.5;
 const MASTER_POINTS_PER_PERCENT = 72;
 const TYRANNY_ICON = "<AbilityIcon id={376888} icon=\"ability_evoker_dragonrage2.jpg\">Tyranny</AbilityIcon>"
 const GIANT_SLAYER_ICON = "<AbilityIcon id={362980} icon=\"ability_evoker_masterygiantkiller.jpg\">Mastery: Giant Slayer</AbilityIcon>"
+const DRAGON_RAGE_ID = 375087
+const DRAGON_RAGE_ICON = `<AbilityIcon id=${DRAGON_RAGE_ID} icon='ability_evoker_dragonrage.jpg'>Dragon Rage</AbilityIcon>`
 const DEBUG = false
 const db = new Debugger(DEBUG)
 db.addMessage("HasTyranny", HAS_TYRANNY)
@@ -106,6 +108,9 @@ export default getComponent = () => {
     const damagePercentGain = (averageMasteryValue * masteryPercent * 100).toFixed(2)
     const damagePercentGainWithTyranny = (averageMasteryValueWithTyranny * masteryPercent * 100).toFixed(2)
 
+    const dragonRageBuff = bm.getSelfBuff(actor.idInReport, DRAGON_RAGE_BUFF_ID)
+    const duration = dragonRageBuff.getFullDuration(fight)
+
     const markdownComponent: RpgLogs.EnhancedMarkdownComponent = {
         component: "EnhancedMarkdown",
         props: {
@@ -113,7 +118,7 @@ export default getComponent = () => {
 # <u>${COMPONENT_NAME} for <Evoker>${actor.name}</Evoker></u>
 On average ${averageMasteryValueWithTyrannyDisplay}% (${averageMasteryValueDisplay}% without ${TYRANNY_ICON}) of ${GIANT_SLAYER_ICON} got applied.
 
-With your Mastery of ${fight.combatantInfoEvents[0].stats.mastery.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}(${masteryPercentDisplay}%) ${TYRANNY_ICON} gained you ${dpsGain.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} DPS, assuming your mastery did not change during the Encounter.
+With your Mastery of ${fight.combatantInfoEvents[0].stats.mastery.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} (${masteryPercentDisplay}%) and ${DRAGON_RAGE_ICON} duration of ${(duration / 1000).toFixed(0)} seconds ${TYRANNY_ICON} gained you ${dpsGain.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} DPS, assuming your mastery did not change during the Encounter.
 
 Overall ${GIANT_SLAYER_ICON} increased your damage by roughly ${damagePercentGainWithTyranny}% (${damagePercentGain}%).
 `

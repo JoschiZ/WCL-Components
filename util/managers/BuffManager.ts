@@ -200,4 +200,25 @@ export class Aura {
 
     return false;
   }
+
+  /**
+   * Calculates the complete duration of a buff in a fight.
+   * @param fight
+   * @return number the sum of duration in milliseconds
+   */
+  getFullDuration(fight: RpgLogs.Fight): number{
+
+    let duration = 0
+    // Prevent some unneeded deep copying if this is called multiple times.
+    const sortedTimeSpans = this._sortedTimes ? this._sortedTimes : this.sortedTimeSpans
+
+    for (const timeSpan of sortedTimeSpans) {
+      let [start, end] = timeSpan
+      start ??= fight.startTime
+      end ??= fight.endTime
+      duration += end - start
+    }
+
+    return duration
+  }
 }
