@@ -153,6 +153,10 @@ export class Aura {
     return this.removed
   }
 
+  /**
+   * Returns a deep copy of [start, end] times of this buff.
+   * The creation of the timings is cached
+   */
   get sortedTimeSpans(): number[][] {
     if (this._sortedTimes) return JSON.parse(JSON.stringify(this._sortedTimes));
 
