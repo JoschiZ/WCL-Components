@@ -62,7 +62,7 @@ export default getComponent = () => {
                 }
 
                 if (event.type === "damage" && event.ability?.id === LAVA_WAVE_ID){
-                    // If the killing blow is bigger than the damage taken from the Lava Wave the Wave was irrelevant
+                    // If the killing blow overkill is bigger than the damage taken from the Lava Wave the Wave was irrelevant
                     if (killingBlow?.overkill && killingBlow.overkill >= event.amount){
                         continue
                     }
@@ -72,7 +72,6 @@ export default getComponent = () => {
                 }
             }
         }
-
     }
 
     const deathCounts: Record<string, {"y": number, color: string}> = {}
@@ -85,6 +84,19 @@ export default getComponent = () => {
         deathCounts[name] = {y: 1, color: getClassColor(death.subType as Class)}
     }
 
+    const sortList: [string, {"y": number, color: string}][] = []
+    for (const actor in deathCounts){
+        sortList.push([actor, deathCounts[actor]])
+    }
+
+    sortList.sort((a, b) => {
+        return  b[1].y -  a[1].y
+    })
+
+    const sortedDeathCounts: Record<string, {"y": number, color: string}> = {}
+    sortList.forEach(entry => sortedDeathCounts[entry[0]] = entry[1])
+
+
     return {
         component: "Chart",
         props: {
@@ -95,7 +107,7 @@ export default getComponent = () => {
                 text: `Deaths in which ${LAVA_WAVE_ICON} was involved`
             },
             xAxis: {
-                categories: Object.keys(deathCounts),
+                categories: Object.keys(sortedDeathCounts),
             },
             yAxis: {
                 min: 0,
@@ -106,7 +118,7 @@ export default getComponent = () => {
             },
             series: [{
                 name: "Deaths",
-                data: Object.values(deathCounts),
+                data: Object.values(sortedDeathCounts),
                 colorByPoint: true
             }]
         }
