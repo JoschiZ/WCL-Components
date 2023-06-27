@@ -18,6 +18,7 @@ interface TemplateConfig {
 }
 
 interface AutoTestPluginOption {
+    active: boolean
     loginMethod: "WCL" | "USA" | "EUROPE" | "KOREA" | "TAIWAN"
     /**This url has to lead directly to the component view (ends with &view=components)*/
     components: {[componentName: string]: string}
@@ -90,3 +91,5 @@ export type EventTypeUnions<T extends RpgLogs.EventCategory> =
                                                         T extends "calculatedDamage" ? RpgLogs.DamageEvent:
                                                             T extends "calculatedHealing" ?  RpgLogs.HealingEvent | RpgLogs.AbsorbedEvent | RpgLogs.RemoveBuffEvent:
                                                                 RpgLogs.AnyEvent;
+
+export type Class = "DeathKnight" | "DemonHunter" | "Druid" | "Evoker" | "Hunter" | "Mage" | "Monk" | "Paladin" | "Priest" | "Rogue" | "Shaman" | "Warlock" | "Warrior"
