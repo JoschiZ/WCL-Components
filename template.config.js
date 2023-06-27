@@ -3,9 +3,12 @@ module.exports = {
     plugins: {
         exportString: true,
         autoTest: {
+            active: true,
             loginMethod: "EUROPE",
             components: {
-                //FireBreathAlyzer: "https://www.warcraftlogs.com/reports/mTpzVhP4RfvD2FM8#fight=1&view=components"
+                FireBreathAlyzer: "https://www.warcraftlogs.com/reports/cNtPvy17QJb9wrX4#fight=15&view=components&source=194",
+                GiantSlayerValue: "https://www.warcraftlogs.com/reports/cNtPvy17QJb9wrX4#fight=15&view=components&source=194",
+                AlterTimeHeals: "https://www.warcraftlogs.com/reports/mRGZtWpdfYvng78a#fight=15&view=components&source=4"
             }
         }
     },

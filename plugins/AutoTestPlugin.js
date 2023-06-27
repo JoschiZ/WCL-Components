@@ -1,5 +1,7 @@
 const puppeteer = require("puppeteer");
 const {inspect} = require("util");
+const path = require("path");
+const fs = require("fs");
 require('dotenv').config({path: ".env"});
 
 
@@ -11,27 +13,75 @@ class AutoTestPlugin {
     options
 
     /**
+     * @type {Record<string, number>}
+     */
+    componentCache= {}
+
+    /**
      * @param options {import("../definitions/template").AutoTestPluginOption}
      */
     constructor(options) {
         this.options = options
+        this.setupTestingBrowser().then(browser => this.browser = browser)
+
+        const tempPath = path.resolve(__dirname, "tmp/fileHashes.json")
+        if (fs.existsSync(tempPath)){
+            const cache = fs.readFileSync(tempPath)
+            this.componentCache = JSON.parse(cache)
+        }
+
+    }
+
+    cyrb53(str, seed = 0){
+        let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+        for(let i = 0, ch; i < str.length; i++) {
+            ch = str.charCodeAt(i);
+            h1 = Math.imul(h1 ^ ch, 2654435761);
+            h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+        h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+        h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+        return 4294967296 * (2097151 & h2) + (h1 >>> 0);
     }
 
     apply(compiler) {
+        compiler.hooks.assetEmitted.tapAsync("AutoTestPlugin", (file, {content}, callback) => {
 
-        compiler.hooks.assetEmitted.tapAsync("Test", (file, {content}, callback) => {
             const componentName = file.replace(".component.js", "")
-            if (!this.options.components[componentName]){
+            console.log(componentName)
+            if (!this.options.components[componentName]) {
                 callback()
                 return
             }
 
-            this.setupTestingBrowser().then((browser => this.browser = browser)).then((browser) => {
-                this.getTestingPage(browser, componentName).then((page) => {
-                    this.runCode(page, new TextDecoder().decode(content)).then(() => {
+            const code = new TextDecoder().decode(content)
+            const hash = this.cyrb53(code)
+            console.log(hash)
+            if (this.componentCache[componentName] && this.componentCache[componentName] === hash){
+                callback()
+                return;
+            }
+
+            this.componentCache[componentName] = hash
+            const folder = path.resolve(__dirname, "tmp")
+
+            if (!fs.existsSync(folder)){
+                fs.mkdirSync(folder);
+            }
+
+            const ws = fs.createWriteStream(path.join(folder, "/fileHashes.json"))
+            ws.write(JSON.stringify(this.componentCache))
+            console.log("Cache saved")
+
+            this.getTestingPage(this.browser, componentName).then((page) => {
+                this.runCode(page, code).then(() => {
                         callback()
-                        }
-                    )
+                    }
+                ).catch(() => {
+                    callback()
                 })
             })
         })
@@ -64,9 +114,8 @@ class AutoTestPlugin {
         await page.click("button.react-tile__action:nth-child(3)")
         const componentsCount = (await page.$$('.report-component-dashboard__cell-overlay')).length
         // create new component
-        await page.waitForSelector(".report-component-dashboard__component-buttons > button:nth-child(1)")
-
         const newComponentButton = ".report-component-dashboard__component-buttons > button:nth-child(1)";
+        await page.waitForSelector(newComponentButton, {timeout: 60000})
         await page.$eval(newComponentButton, element => element.click())
 
         await page.waitForFunction(componentsCount => {
@@ -136,8 +185,8 @@ class AutoTestPlugin {
      * @return {Promise<void>}
      */
     async loginToWCLWithWCL(page) {
-        const login =  process.env.WCL_LOGIN_EMAIL ?  process.env.WCL_LOGIN_EMAIL : ""
-        const passwort =  process.env.WCL_PASSWORD ?  process.env.WCL_PASSWORD : ""
+        const login = process.env.WCL_LOGIN_EMAIL ? process.env.WCL_LOGIN_EMAIL : ""
+        const passwort = process.env.WCL_PASSWORD ? process.env.WCL_PASSWORD : ""
         await page.type("#email", login)
         await page.type("#password", passwort)
 
@@ -170,14 +219,14 @@ class AutoTestPlugin {
             waitUntil: 'networkidle0',
         });
 
-        const login =  process.env.BNET_LOGIN_EMAIL ?  process.env.BNET_LOGIN_EMAIL : ""
-        const passwort =  process.env.BNET_PASSWORD ?  process.env.BNET_PASSWORD : ""
+        const login = process.env.BNET_LOGIN_EMAIL ? process.env.BNET_LOGIN_EMAIL : ""
+        const passwort = process.env.BNET_PASSWORD ? process.env.BNET_PASSWORD : ""
         await page.type("#accountName", login)
         await page.type("#password", passwort)
         await page.waitForFunction(() => {
             // eslint-disable-next-line no-undef
             return !document.URL.includes("battle.net")
-        });
+        }, {timeout: 60000});
 
     }
 
@@ -190,7 +239,7 @@ class AutoTestPlugin {
     async runCode(page, text) {
         try {
             await page.bringToFront()
-        }catch (e){
+        } catch (e) {
             this.browser = undefined
             this.pageCache = {}
             this.browser = await this.setupTestingBrowser()

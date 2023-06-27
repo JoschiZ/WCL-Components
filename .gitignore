@@ -3,3 +3,4 @@
 /.vscode
 .env
 /old/
+/plugins/tmp/
