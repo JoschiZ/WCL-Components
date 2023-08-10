@@ -110,7 +110,7 @@ function getAlterTimeHeals(fight: RpgLogs.Fight, actor: RpgLogs.Actor): Row[] {
 
     for (const [start, end] of timings) {
         let startHealth = hm.getHealth(actor.idInReport, start, "before")
-        const endHealth = hm.getHealth(actor.idInReport, end, "before")
+        const endHealth = hm.getHealth(actor.idInReport, end, "after")
         db.addMessage("AT", {startHealth, endHealth, start, end})
         const duration = Math.round(end / 1000) - Math.round(start / 1000)
 
