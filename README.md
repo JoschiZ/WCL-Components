@@ -13,6 +13,18 @@ This component calculates how much of the Devastation Evoker Mastery got applied
 By comparing the Dragonrage value with the baseline, one can gauge the in vivo value of tyranny.
 
 
+## DiedToLavaWave
+[Import String](dist/DiedToLavaWave.component.lzstring.txt)
+
+A graph that shows how often someone died after taking damage from lava wave.
+By default a death is included, when the player took damage by Lava Wave between his death and the last time
+he was at or above 95% health.
+
+Known issue:
+Because of a WCL bug you sometimes need to change the "Ignore Deaths after X events" filter a few times before this component works.
+
+This component is easily customizable in the TS source!
+
 ## FireBreathAlyzer
 WIP
 
