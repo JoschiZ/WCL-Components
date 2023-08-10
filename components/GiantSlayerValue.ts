@@ -2,7 +2,7 @@ import throwError from "../util/returnHelper/throwError";
 import BuffManager from "../util/managers/BuffManager";
 import {eventsByCategoryAndDisposition} from "../util/wrappers/getEventsByTypeAndDisposition";
 import {RpgLogs} from "../definitions/RpgLogs";
-import Debugger from "../util/debugging/Debugger";
+import CustomLogger from "../util/debugging/CustomLogger";
 import {IsInTimeSpan} from "../util/managers/IsInTimeSpan";
 
 const COMPONENT_NAME = "Mastery: Giant Slayer Value"
@@ -30,7 +30,7 @@ const GIANT_SLAYER_ICON = "<AbilityIcon id={362980} icon=\"ability_evoker_master
 const DRAGON_RAGE_ID = 375087
 const DRAGON_RAGE_ICON = `<AbilityIcon id=${DRAGON_RAGE_ID} icon='ability_evoker_dragonrage.jpg'>Dragon Rage</AbilityIcon>`
 const DEBUG = false
-const db = new Debugger(DEBUG)
+const db = new CustomLogger(DEBUG)
 db.addMessage("HasTyranny", HAS_TYRANNY)
 
 export default getComponent = () => {

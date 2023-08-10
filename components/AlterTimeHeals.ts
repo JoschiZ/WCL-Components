@@ -4,7 +4,7 @@ import HealthManager from "../util/managers/HealthManager";
 import {RpgLogs} from "../definitions/RpgLogs";
 import throwError from "../util/returnHelper/throwError";
 import timestampToTime from "../util/timestampToTime";
-import Debugger from "../util/debugging/Debugger";
+import CustomLogger from "../util/debugging/CustomLogger";
 
 type Row = {
     timestamp: number | string,
@@ -13,7 +13,7 @@ type Row = {
 
 const COMPONENT_NAME = "Alter Time Healing"
 const DEBUG = false
-const db = new Debugger(DEBUG)
+const db = new CustomLogger(DEBUG)
 const ALTER_TIME_BUFF_ID = 342246
 const ALTER_TIME_ID = 342247
 const ALTER_TIME_ICON = "<AbilityIcon id={ALTER_TIME_ID} icon=\"spell_mage_altertime.jpg\">Alter Time</AbilityIcon>"
@@ -95,10 +95,9 @@ function getAlterTimeHeals(fight: RpgLogs.Fight, actor: RpgLogs.Actor): Row[] {
     })
     db.addMessage("BuffManager", bm)
 
-    const health = eventsByCategoryAndDisposition(fight, "damage", "enemy")
-    const hm = new HealthManager(health, {targetFilters: [{idInReport: actor.idInReport}]})
-
-    db.addMessage("HealthManager", hm)
+    const health = eventsByCategoryAndDisposition(fight, "healing", "friendly")
+    const damage = eventsByCategoryAndDisposition(fight, "damage", "enemy")
+    const hm = new HealthManager([health, damage], db,{targetFilters: [{idInReport: actor.idInReport}]})
 
     if (!bm.actors[actor.id] || !bm.actors[actor.id].targets[actor.id] || !bm.actors[actor.id].targets[actor.id].buffs[ALTER_TIME_BUFF_ID]) {
         return []
@@ -110,7 +109,7 @@ function getAlterTimeHeals(fight: RpgLogs.Fight, actor: RpgLogs.Actor): Row[] {
 
     for (const [start, end] of timings) {
         let startHealth = hm.getHealth(actor.idInReport, start, "before")
-        const endHealth = hm.getHealth(actor.idInReport, end, "after")
+        const endHealth = hm.getHealth(actor.idInReport, end, "before")
         db.addMessage("AT", {startHealth, endHealth, start, end})
         const duration = Math.round(end / 1000) - Math.round(start / 1000)
 

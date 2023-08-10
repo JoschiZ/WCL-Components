@@ -1,30 +1,39 @@
-import {ManagerOptions} from "../../definitions/Template";
+import {EventTypeUnions, ManagerOptions} from "../../definitions/Template";
 import checkFilter from "./checkFilter";
+import CustomLogger from "../debugging/CustomLogger";
 import {RpgLogs} from "../../definitions/RpgLogs";
 
 type HealthManagerOptions = ManagerOptions
 export default class HealthManager{
     targets: Map<number, Target> = new Map()
     options: HealthManagerOptions
+    private readonly logger: CustomLogger
 
-    constructor(events: ReadonlyArray<RpgLogs.DamageEvent>, options: HealthManagerOptions = {}) {
+    constructor(events: Array<ReadonlyArray<EventTypeUnions<"healing">> | ReadonlyArray<RpgLogs.DamageEvent>>, logger: CustomLogger, options: HealthManagerOptions = {}) {
         this.options = options
-        for (const event of events){
-            if (!event.targetResources || !event.target){
-                continue
-            }
-            if (options.targetFilters && checkFilter(event.target, options.targetFilters)) {
-                continue;
-            }
-            if (options.sourceFilters && checkFilter(event.source, options.sourceFilters)) {
-                continue;
-            }
-            if (options.abilityFilters && checkFilter(event.ability, options.abilityFilters)) {
-                continue;
-            }
+        this.logger = logger
+        this.logger.addMessage("Events in Health Manager", events)
+        for (const eventList of events){
+            for (const event of eventList){
+                if (!event.targetResources || !event.target){
+                    continue
+                }
+                if (options.targetFilters && checkFilter(event.target, options.targetFilters)) {
+                    continue;
+                }
+                if (options.sourceFilters && checkFilter(event.source, options.sourceFilters)) {
+                    continue;
+                }
+                if (options.abilityFilters && checkFilter(event.ability, options.abilityFilters)) {
+                    continue;
+                }
 
-            const target = this.addTarget(new Target(event.target.name, event.target.idInReport))
-            target.addHealth(event)
+                const target = this.addTarget(new Target(event.target.name, event.target.idInReport, this.logger))
+                target.addHealth(event)
+            }
+        }
+        for (const target of this.targets){
+            target[1].sortHealth()
         }
     }
 
@@ -61,22 +70,44 @@ class Target {
     name: string
     id: number
     maxHealth = 0
+    private readonly logger: CustomLogger
     private health: Map<number, number> = new Map()
 
-    constructor(name: string, id: number) {
+    constructor(name: string, id: number, logger: CustomLogger) {
         this.name = name
         this.id = id
+        this.logger = logger
     }
 
-    addHealth(event: RpgLogs.DamageEvent){
+    sortHealth(){
+        this.health = new Map([...this.health.entries()].sort());
+    }
+
+    addHealth(event: EventTypeUnions<"healing"> | RpgLogs.DamageEvent){
         if (!event.target || !event.targetResources){
             return
         }
-        this.health.set(event.timestamp, event.targetResources.hitPoints)
+        let health = event.targetResources.hitPoints
+        // this is actually before / after specific this implementation just works with before
+        if (event.type === "damage"){
+            health -= event.amount
+        }
+        if (event.type === "heal"){
+            health += event.amount
+        }
+        if (health <= 0)
+            return;
+        this.health.set(event.timestamp, health)
         this.maxHealth = event.targetResources.maxHitPoints
     }
 
+    /**
+     * ATTENTION Currently only works with "before" see addHealth right above
+     * @param timestamp
+     * @param timingOverride
+     */
     getHealth(timestamp:number, timingOverride?: "before" | "after"){
+        this.logger.addMessage("Checking health at", {timestamp, health: Object.fromEntries(this.health)})
         const possibleHealth = this.health.get(timestamp)
         if (possibleHealth){
             return possibleHealth
@@ -87,46 +118,55 @@ class Target {
         }
 
         let currentHealth = null;
+        let currentTime = null;
         if (timingOverride === "before"){
             // If no prior damage event happened we assume the actor is full health. This may be inaccurate sometimes
             currentHealth = this.maxHealth
+
             for (const [time, health] of this.health){
+                //this.logger.addMessage("checked time", {time, against:timestamp})
                 if (time > timestamp){
+                    this.logger.addMessage("broke with", {breakTime: time, currentTime})
                     break
                 }
+                currentTime = time
                 currentHealth = health
             }
+            this.logger.addMessage(`returned health`, {currentTime, currentHealth, timestamp})
             return currentHealth
         }
 
         if (timingOverride === "after"){
             for (const [time, health] of this.health){
                 currentHealth = health
+                currentTime = time
                 if (time > timestamp){
                     break
                 }
             }
+            this.logger.addMessage(`returned health`, {currentTime, currentHealth, timestamp})
             return currentHealth
         }
-
         return this.getClosestHealth(timestamp)
     }
 
     private getClosestHealth(timestamp: number){
         let currentHealth: number | null = null
         let smallestDiff = Infinity
-
+        let currentTime : null | number = null
         for (const [time, health] of this.health){
             currentHealth ??= health
             const diff = Math.abs(time - timestamp)
             if (diff <= smallestDiff){
                 currentHealth = health
                 smallestDiff = diff
+                currentTime = time
             }
             else{
                 break
             }
         }
+        this.logger.addMessage(`returned health`, {currentTime, currentHealth, timestamp})
         return currentHealth
     }
 }
