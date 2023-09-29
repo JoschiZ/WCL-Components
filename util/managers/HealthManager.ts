@@ -90,22 +90,25 @@ class Target {
         let health = event.targetResources.hitPoints
         // this is actually before / after specific this implementation just works with before
         if (event.type === "damage"){
+
             health -= event.amount
+            if (health <= 0)
+                return;
+            this.health.set(event.timestamp + 1, health)
         }
         if (event.type === "heal"){
+
             health += event.amount
+            this.health.set(event.timestamp + 1, health)
         }
-        if (health <= 0)
-            return;
-        this.health.set(event.timestamp, health)
+        else {
+            this.health.set(event.timestamp, health)
+        }
+
         this.maxHealth = event.targetResources.maxHitPoints
     }
 
-    /**
-     * ATTENTION Currently only works with "before" see addHealth right above
-     * @param timestamp
-     * @param timingOverride
-     */
+
     getHealth(timestamp:number, timingOverride?: "before" | "after"){
         this.logger.addMessage("Checking health at", {timestamp, health: Object.fromEntries(this.health)})
         const possibleHealth = this.health.get(timestamp)
