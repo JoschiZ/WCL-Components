@@ -25,10 +25,11 @@ Because of a WCL bug you sometimes need to change the "Ignore Deaths after X eve
 
 This component is easily customizable in the TS source!
 
-## FireBreathAlyzer
-WIP
+## CanceledStarlord
+[Import String](dist/CanceledStarlord.component.lzstring.txt)
 
-Goal: should evaluate if Evokers Fire Breath should have been channeled longer.
+This will show you how often a given balance druid has canceled Star Lord.
+Currently it also counts deaths while Star Lord runs as canceled.
 
 ___
 This repository uses the [WCL TS Components Template](https://github.com/JoschiGrey/WCL-TS-Components)
