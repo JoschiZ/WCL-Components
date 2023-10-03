@@ -31,5 +31,12 @@ This component is easily customizable in the TS source!
 This will show you how often a given balance druid has canceled Star Lord.
 Currently it also counts deaths while Star Lord runs as canceled.
 
+
+## PowerUsageTable
+[Import String](dist/PowerUsageTable.component.lzstring.txt)
+
+This component will show you how much of each resource type you spent.
+This should give you an overview on how you used your resources.
+
 ___
 This repository uses the [WCL TS Components Template](https://github.com/JoschiGrey/WCL-TS-Components)
