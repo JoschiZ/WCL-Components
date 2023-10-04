@@ -20,8 +20,9 @@ export default getComponent = () => {
     const allFightData: FightData[] = []
     const allRows: Row[][] = []
     const allColumns: Record<string, RpgLogs.TableColumn>[] = []
+    const actorIdFilter = eventFilters.actorId
     for (const fight of reportGroup.fights) {
-        const fightData = ParseFight(fight)
+        const fightData = ParseFight(fight, actorIdFilter)
         const column = fightData.GetColumns()
         allFightData.push(fightData)
         allColumns.push(column)
@@ -98,7 +99,7 @@ function updatePercentages(allRows: Row[], allFightData: FightData[]){
     return allRows
 }
 
-function ParseFight(fight: RpgLogs.Fight): FightData {
+function ParseFight(fight: RpgLogs.Fight, actorIdFilter: number | undefined): FightData {
     const fightData = new FightData()
     const events = eventsByCategoryAndDisposition(fight, "casts", "friendly")
     for (const event of events) {
@@ -106,6 +107,9 @@ function ParseFight(fight: RpgLogs.Fight): FightData {
         if(event.type !== "cast")
             continue
 
+        if (actorIdFilter && event.source?.id !== actorIdFilter){
+            continue
+        }
         fightData.AddCastEvent(event)
 
     }
