@@ -1,4 +1,4 @@
-import {RpgLogs} from "../../definitions/RpgLogs";
+import {RpgLogs} from "@rpglogs/report-component-types/warcraft";
 import {EventTypeUnions} from "../../definitions/Template";
 
 /**

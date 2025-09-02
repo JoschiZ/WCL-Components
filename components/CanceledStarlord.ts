@@ -2,7 +2,7 @@ import CustomLogger from "../util/debugging/CustomLogger";
 import throwError from "../util/returnHelper/throwError";
 import {eventsByCategoryAndDisposition} from "../util/wrappers/getEventsByTypeAndDisposition";
 import BuffManager from "../util/managers/BuffManager";
-import {RpgLogs} from "../definitions/RpgLogs";
+import {RpgLogs} from "@rpglogs/report-component-types/warcraft";
 
 const STARLORD_BUFF_ID = 279709
 const DEBUG = false

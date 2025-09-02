@@ -1,7 +1,7 @@
 import throwError from "../util/returnHelper/throwError";
 import BuffManager from "../util/managers/BuffManager";
 import {eventsByCategoryAndDisposition} from "../util/wrappers/getEventsByTypeAndDisposition";
-import {RpgLogs} from "../definitions/RpgLogs";
+import {RpgLogs} from "@rpglogs/report-component-types/warcraft";
 import CustomLogger from "../util/debugging/CustomLogger";
 import {IsInTimeSpan} from "../util/managers/IsInTimeSpan";
 

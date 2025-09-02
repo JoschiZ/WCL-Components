@@ -1,4 +1,5 @@
-import {RpgLogs} from "./RpgLogs";
+import {RpgLogs} from "@rpglogs/report-component-types/warcraft";
+import "@rpglogs/report-component-types/global/warcraft"
 
 interface TemplateConfig {
     /**

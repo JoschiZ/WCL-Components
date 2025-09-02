@@ -1,5 +1,8 @@
+import {RpgLogs} from "@rpglogs/report-component-types/warcraft";
+
 export default function getActorReportId(name: string){
-    const actor = reportGroup.actors.find(actor => actor.name === name)
+    const actor = reportGroup.actors.find((actor :RpgLogs.Actor) => actor.name === name)
+
     if (actor){
         return actor.idInReport
     }

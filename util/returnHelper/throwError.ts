@@ -1,4 +1,4 @@
-import {RpgLogs} from "../../definitions/RpgLogs";
+import {RpgLogs} from "@rpglogs/report-component-types/warcraft";
 
 export default function throwError(componentName: string, message: string): RpgLogs.EnhancedMarkdownComponent {
 

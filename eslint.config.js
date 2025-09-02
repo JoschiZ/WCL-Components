@@ -20,7 +20,7 @@ module.exports = [
   },
   {
     files: ["**/*.ts"],
-    ignores: ["dist/**/*", "node_modules/*/*", "**/*/eslint.config.js", "definitions/RpgLogs.d.ts"],
+    ignores: ["dist/**/*", "node_modules/*/*", "**/*/eslint.config.js"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {

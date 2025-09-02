@@ -1,5 +1,5 @@
 import {eventsByCategoryAndDisposition} from "../util/wrappers/getEventsByTypeAndDisposition";
-import {RpgLogs} from "../definitions/RpgLogs";
+import {RpgLogs} from "@rpglogs/report-component-types/warcraft";
 import getClassColor from "../util/getClassColor";
 import DeathEvent = RpgLogs.DeathEvent;
 import {Class} from "../definitions/Template";

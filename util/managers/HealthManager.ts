@@ -1,8 +1,7 @@
 import {EventTypeUnions, ManagerOptions} from "../../definitions/Template";
 import checkFilter from "./checkFilter";
 import CustomLogger from "../debugging/CustomLogger";
-import {RpgLogs} from "../../definitions/RpgLogs";
-
+import {RpgLogs} from "@rpglogs/report-component-types/warcraft";
 type HealthManagerOptions = ManagerOptions
 export default class HealthManager{
     targets: Map<number, Target> = new Map()
